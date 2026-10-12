@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>精神状态成分检测</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script><style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(160deg,#fff9e6,#ffeecc,#ffe6d0);min-height:100vh;color:#4a3b2a;padding:20px 16px 40px;display:flex;flex-direction:column;align-items:center}
+.page{width:100%;max-width:520px;display:none}.page.active{display:block}.card{background:#fffdf8;border-radius:22px;padding:28px 22px;box-shadow:0 8px 30px rgba(200,160,90,.15);border:1px solid #f5e6c8}
+h1{font-size:24px;text-align:center;color:#8b6b3d;margin-bottom:8px}.sub{text-align:center;font-size:13px;color:#b09468;margin-bottom:20px;line-height:1.6}
+input{width:100%;padding:15px;font-size:16px;border-radius:14px;border:2px solid #f0dbb5;background:#fffefb;outline:none;text-align:center;letter-spacing:2px}
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#ffc96b,#ffab4d);color:#5a3d18;margin-top:14px;box-shadow:0 4px 14px rgba(255,171,77,.35)}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4}.ghost{background:#f7efe0;color:#8b6b3d;box-shadow:none}
+.tip{font-size:12px;color:#c0a57c;text-align:center;margin-top:12px;line-height:1.7}.err{color:#e07a5f;font-size:13px;text-align:center;margin-top:10px;min-height:18px}
+.pb{height:8px;background:#f5e6c8;border-radius:10px;overflow:hidden}.pf{height:100%;width:0;background:linear-gradient(90deg,#ffc96b,#ff9f45);transition:width .3s}
+.pt{font-size:12px;color:#b09468;text-align:right;margin:6px 0 18px}.qn{font-size:13px;color:#c8a86b;margin-bottom:8px}
+.qt{font-size:18px;font-weight:600;line-height:1.6;margin-bottom:18px}.opt{display:block;width:100%;text-align:left;padding:15px;margin-bottom:12px;border-radius:14px;border:2px solid #f2e3c3;background:#fffefb;font-size:15px;color:#5a4530;cursor:pointer}
+.opt.sel{background:linear-gradient(135deg,#ffe6b0,#ffd98a);border-color:#f0b95c;font-weight:600}
+.nav{display:flex;gap:12px}.nav .btn{margin-top:0}.rh{text-align:center;margin-bottom:18px}.re{font-size:52px}.rt{font-size:23px;font-weight:700;color:#8b5e2a}
+.rg{font-size:13px;color:#b09468;margin-top:8px;line-height:1.7}.sec{margin-top:18px}.st{font-size:14px;font-weight:700;color:#a8813f;margin-bottom:8px}
+.sb{font-size:14.5px;line-height:1.9}.radar{width:100%;max-width:280px;margin:0 auto;display:block}
+.fm{font-size:14px;line-height:2;background:#fff8ea;padding:14px;border-radius:12px}
+.sc{background:linear-gradient(135deg,#fff6e0,#ffe9c4);border-radius:16px;padding:18px;text-align:center;font-size:15px;line-height:1.8;color:#7a5312;font-weight:600;margin-top:18px;border:1px dashed #e8c47a}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;width:100%;max-width:520px}.acts .btn{margin-top:0;font-size:14px;padding:14px 8px}.full{grid-column:1/-1}
+.toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:rgba(90,61,24,.92);color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:99}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style></head><body>
+
+<div class="page active" id="pPwd"><div class="card"><h1>精神状态成分检测</h1><p class="sub">18道题，测出你的精神状态配方<br>看看你到底是三分糖，还是全糖永动机</p><input id="pwd" type="text" placeholder="请输入测试密码" autocomplete="off"><button class="btn" id="startBtn">开始测试</button><div class="err" id="pwdErr"></div><p class="tip">每套密码限测 3 次，用完自动失效<br>结果仅供娱乐参考</p></div></div>
+
+<div class="page" id="pQuiz"><div class="card"><div class="pb"><div class="pf" id="pf"></div></div><div class="pt" id="pt">1 / 18</div><div class="qn" id="qn"></div><div class="qt" id="qt"></div><div id="opts"></div><div class="nav"><button class="btn ghost" id="prevBtn">上一题</button><button class="btn" id="nextBtn">下一题</button></div></div></div>
+
+<div class="page" id="pRes"><div class="card" id="resCard"><div class="rh"><div class="re" id="rE"></div><div class="rt" id="rT"></div><div class="rg" id="rG"></div></div><div class="sec"><div class="st">成分雷达图</div><svg class="radar" id="rRadar" viewBox="0 0 300 300"></svg></div><div class="sec"><div class="st">成分配方</div><div class="fm" id="rF"></div></div><div class="sec"><div class="st">理论解读</div><div class="sb" id="rTh"></div></div><div class="sc" id="rS"></div></div><div class="acts"><button class="btn" id="saveBtn">💾 保存长图</button><button class="btn ghost" id="copyBtn">🔗 复制链接</button><button class="btn ghost full" id="retryBtn">🔄 再测一次</button></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var POOL=["Sp8k2Q","Zx4m9B","Kf7t3R","Wq5n8C","Hy2j6L","Nv9d4P","Bt6s1G","Rm3w7V","Ej8a5T","Lu1c9Y"],MAX=3;
+function $(i){return document.getElementById(i)}
+function sg(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function ss(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function usage(){try{return JSON.parse(sg("mt_u")||"{}")}catch(e){return{}}}
+var S={pwd:"",step:0,ans:[]};
+function resAns(){S.ans=[];for(var i=0;i<Q.length;i++)S.ans.push(null)}
+function page(id){var ps=document.querySelectorAll(".page");for(var i=0;i<ps.length;i++)ps[i].classList.remove("active");$(id).classList.add("active");scrollTo(0,0)}
+var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show")},2000)}
+
+var Q=[
+{q:"早上闹钟响的那一刻，你脑子里第一句话通常是：",a:[{t:"再睡5分钟，5分钟就好",d:"C",v:2},{t:"今天要干的事好多，有点烦",d:"E",v:3},{t:"算了，起来吧，反正也睡不着了",d:"A",v:3},{t:"啊……又要开始演一个正常人了",d:"D",v:1}]},
+{q:"手机收到一条不太想回的微信，你会：",a:[{t:"先放着，等有心情了再说",d:"B",v:2},{t:"立刻回，怕对方等",d:"A",v:1},{t:"回一个嗯好，赶紧结束",d:"F",v:2},{t:"打开看了，然后假装没看到",d:"E",v:4}]},
+{q:"你刷短视频的时候，通常是：",a:[{t:"一边刷一边骂自己浪费时间",d:"C",v:1},{t:"刷到停不下来，抬头已经半夜",d:"C",v:2},{t:"挑着看，专注在自己喜欢的",d:"D",v:3},{t:"刷着刷着突然觉得什么都没意思",d:"D",v:1}]},
+{q:"一天里你脑子最容易放空的时刻是：",a:[{t:"洗澡、走路这种机械动作时",d:"E",v:2},{t:"躺在床上准备睡觉时",d:"E",v:4},{t:"开会、上课、听人说话时",d:"E",v:2},{t:"几乎不放空，脑子一直在转",d:"E",v:3}]},
+{q:"别人夸你的时候，你心里的第一反应是：",a:[{t:"开心，但还是有点不好意思",d:"F",v:2},{t:"觉得对方是不是有事求我",d:"A",v:2},{t:"觉得你根本不知道我多差",d:"F",v:1},{t:"笑着说谢谢，转头就忘了",d:"F",v:4}]},
+{q:"你的房间或桌面通常是：",a:[{t:"表面整齐，抽屉里是灾难",d:"C",v:2},{t:"乱一点才有安全感",d:"C",v:2},{t:"极度整齐，乱了会难受",d:"C",v:4},{t:"乱到一定程度后，突然全部收拾一遍",d:"C",v:1}]},
+{q:"朋友约你出门，但你现在很累：",a:[{t:"拒绝，但会愧疚很久",d:"B",v:1},{t:"硬着头皮去，回来更累",d:"B",v:2},{t:"直接拒绝，没什么负担",d:"B",v:4},{t:"答应，然后倒计时什么时候能走",d:"B",v:1}]},
+{q:"深夜独处时，你最常出现的感觉是：",a:[{t:"终于属于我自己了，很爽",d:"B",v:4},{t:"安静下来反而有点空",d:"D",v:1},{t:"复盘今天所有尴尬瞬间",d:"E",v:4},{t:"有点emo，但说不上为什么",d:"A",v:1}]},
+{q:"想到明年这时候的自己，你觉得：",a:[{t:"应该还是老样子吧",d:"D",v:1},{t:"会更好吧，多少得有点变化",d:"D",v:4},{t:"不敢想，走一步看一步",d:"D",v:2},{t:"想了很多，但不知道从哪开始",d:"D",v:2}]},
+{q:"你对发朋友圈或动态的态度是：",a:[{t:"几乎不发，发了也很快删",d:"B",v:1},{t:"想发就发，不太在意别人怎么看",d:"B",v:4},{t:"会精心编辑，发之前想很久",d:"B",v:2},{t:"想发，但总觉得会被judge，最后算了",d:"B",v:1}]},
+{q:"明天有个重要的事，你前一晚怎么过：",a:[{t:"提前准备好，能睡个安稳觉",d:"C",v:4},{t:"反复想各种可能出错的状况",d:"E",v:3},{t:"先逃避，用刷手机麻痹自己",d:"C",v:1},{t:"告诉自己没事，其实一直在想",d:"E",v:3}]},
+{q:"你有没有过明明很努力却感觉在原地的时候：",a:[{t:"经常有，这是常态",d:"D",v:1},{t:"偶尔有，但会很快调整",d:"D",v:4},{t:"有，但我觉得是努力不够",d:"D",v:2},{t:"有，然后会干脆摆烂一阵子",d:"D",v:1}]},
+{q:"你和自己相处得怎么样：",a:[{t:"大部分时候还行，偶尔嫌弃自己",d:"F",v:3},{t:"挺好的，我挺喜欢我这个人的",d:"F",v:4},{t:"经常自我批评，觉得自己不够好",d:"F",v:1},{t:"平时不觉得，一安静下来就想挑自己毛病",d:"F",v:2}]},
+{q:"周末如果没有安排，你会：",a:[{t:"就这样躺着，很舒服",d:"C",v:3},{t:"有点焦虑，觉得该做点有意义的事",d:"D",v:2},{t:"临时约人，不想一个人待着",d:"B",v:3},{t:"计划好一堆事，最后一件没做",d:"C",v:1}]},
+{q:"你发完一条消息，对方很久没回：",a:[{t:"没什么感觉，该干嘛干嘛",d:"A",v:4},{t:"会想是不是自己说错什么了",d:"E",v:3},{t:"干脆把消息撤回来",d:"A",v:1},{t:"假装不在意，但隔几分钟就看一次",d:"E",v:3}]},
+{q:"你觉得你现在的生活节奏：",a:[{t:"挺快的，有点喘不过气",d:"E",v:4},{t:"慢得有点发慌",d:"D",v:2},{t:"时快时慢，全靠临期赶工",d:"C",v:2},{t:"看起来正常，其实全靠意志力硬撑",d:"C",v:3}]},
+{q:"别人情绪不好时，你通常：",a:[{t:"会很在意，想帮忙但又怕说错话",d:"A",v:2},{t:"会共情到自己也难受",d:"A",v:2},{t:"理性分析，不太受情绪影响",d:"A",v:4},{t:"想安慰，但不知道说什么，最后沉默",d:"A",v:2}]},
+{q:"如果给自己的精神状态起个名字，你会选：",a:[{t:"表面正常，内部腐烂",d:"F",v:1},{t:"间歇性发疯，持续性稳定",d:"A",v:2},{t:"累，但还能撑",d:"C",v:3},{t:"其实还好，就是有点累",d:"A",v:3}]}
+];
+
+var R={
+R1:{e:"🧋",n:"三分糖·社恐拿铁",g:"你不是不想社交，你是社交完之后要花三天回血。",f:"社交能量20% · 认知负荷35% · 自我控制30% · 自我接纳15%",t:"你的社交能量槽天生偏浅，同时脑子里的后台进程太多。心理学上这叫高敏感加高认知负荷组合——不是内向，而是神经系统对刺激处理更细腻。这类人的共情力和洞察力通常高于常人。",s:"电量一格格掉，回消息靠念在旧情。"},
+R2:{e:"🍵",n:"无糖·摆烂乌龙",g:"你不是懒，你是知道该做但提不起劲的专业选手。",f:"自我控制15% · 意义感20% · 情绪调节30% · 认知负荷35%",t:"典型的目标与动机脱节：不是没目标，而是目标没和情绪系统接通，行动力空转。Baumeister 的自我损耗理论认为意志力是有限资源——你只是把它消耗在别处，比如压抑自己。",s:"计划列得漂亮，执行全靠良心。"},
+R3:{e:"🍶",n:"全糖·社交永动机",g:"你是人群里的充电宝，但没人问你电量还剩多少。",f:"社交能量85% · 情绪调节70% · 自我接纳60% · 认知负荷45%",t:"高外向性配合高情绪调节，让你在社交中游刃有余。但长期担任气氛组组长，容易情绪劳动耗竭——你照顾了所有人，谁来照顾你？适度示弱不是失职，是可持续。",s:"我是大家的情绪充电宝，但我也会没电。"},
+R4:{e:"🧊",n:"冰美式·理性冷静派",g:"你不是冷漠，你只是把情绪放在别人看不见的抽屉里。",f:"自我控制80% · 情绪调节75% · 社交能量40% · 意义感65%",t:"你的前额叶工作得非常好，能高效压制冲动。但过度使用表达抑制这种策略，长期可能带来情绪识别困难——越来越难说清自己感觉如何。偶尔允许自己不冷静，是一种健康。",s:"情绪稳定是我的技能，不是我的性格。"},
+R5:{e:"🫧",n:"气泡水·随缘型",g:"你信奉：该来的会来，不该来的来了也行。",f:"意义感40% · 自我控制45% · 情绪调节60% · 自我接纳70%",t:"你的自我接纳水平健康，不太内耗。低控制欲加高接纳其实是心理韧性的一种——不较劲的人往往更抗压。但随缘不等于躺平，适度给自己一个够得着的目标会更踏实。",s:"没什么大不了，除了生死都是擦伤。"},
+R6:{e:"🧃",n:"过期果汁·深夜emo型",g:"白天正常人，晚上情绪翻涌成海。",f:"认知负荷80% · 情绪调节25% · 意义感30% · 自我接纳35%",t:"典型的高反刍思维——夜里安静时反复咀嚼负面事件。研究显示反刍是抑郁的强预测因子，但也说明你感知敏锐。比起压抑，把想法写下来、给情绪出口，更容易停下来。",s:"白天我是我，晚上我是我的情绪。"},
+R7:{e:"💊",n:"续命胶囊·高压硬撑型",g:"看着挺稳，其实全靠一口气吊着。",f:"自我控制75% · 认知负荷85% · 情绪调节50% · 自我接纳30%",t:"你处在慢性压力加意志力硬撑的状态。用自律对抗超载，短期有效、长期消耗身心。你现在需要的不是更努力，而是减负——哪怕每天留半小时什么都不干。",s:"不是我坚强，是我没时间垮。"},
+R8:{e:"🍯",n:"甜酒酿·自我疗愈型",g:"你会难过，但你有一套哄好自己的方法。",f:"自我接纳85% · 情绪调节70% · 意义感60% · 自我控制55%",t:"高自我接纳加高情绪调节，是心理健康的黄金组合。Neff 的自我关怀理论认为，能像对待朋友一样对待自己，是抵御压力最强的缓冲。你属于受伤后会自己包扎的人，非常珍贵。",s:"我最大的能力，是把自己哄好。"},
+R9:{e:"🌙",n:"失眠特调·大脑过载型",g:"你的脑子从来不停机，连梦里都在开会。",f:"认知负荷90% · 自我控制40% · 意义感50% · 情绪调节40%",t:"你的默认模式网络过度活跃，很难真正休息。这不是想太多，而是大脑的待机程序关不掉。规律的身体活动（运动、手工、做饭）能有效降低它的活跃度，比躺着默念别想了有用。",s:"我的脑子有两个模式：忙，和假装不忙。"},
+R10:{e:"🥤",n:"可乐·快乐普通人",g:"该emo emo，该干活干活，情绪来得快去得也快。",f:"情绪调节75% · 意义感65% · 社交能量60% · 自我控制60%",t:"你是情绪弹性很好的类型，能在压力和恢复间快速切换，情绪调节灵活性很高——不被情绪绑架，也不压抑。小缺点是可能习惯性回避深挖感受，偶尔问问自己：我真的还好吗。",s:"emo是限时活动，过期自动恢复。"},
+R11:{e:"🍲",n:"麻辣烫·矛盾混合体",g:"你身上同时住着六个不同的人，还经常开会吵架。",f:"各维度得分差异较大",t:"你六个维度差异很大，属于高矛盾型——不同情境下表现天差地别。这不是人格分裂，而是正处在自我探索期，还没形成稳定自我认知。这阶段很累，但往往成长最快。",s:"我什么都是，又好像什么都不是。"},
+R12:{e:"🌀",n:"白开水·稳定普通人",g:"你没病，也没多特别，就是一个状态还行的普通人。",f:"六维均衡 · 均在55%~65%",t:"六维均衡是最常见也最易被忽视的类型。心理结构稳定，没有明显短板，也没有极端特质。心理学上叫适应良好——不惊艳，但可持续。别被必须特别的叙事绑架，稳定本身就是能力。",s:"我的精神状态：毫无特色，但很耐用。"}
+};
+
+function start(){
+  var p=$("pwd").value.trim(),e=$("pwdErr");
+  if(!p){e.textContent="请输入密码";return}
+  if(POOL.indexOf(p)<0){e.textContent="密码错误，请检查后重试";return}
+  var u=usage(),c=u[p]||0;
+  if(c>=MAX){e.textContent="该密码使用次数已用完（3/3）";return}
+  u[p]=c+1;ss("mt_u",JSON.stringify(u));
+  S.pwd=p;S.step=0;resAns();e.textContent="";
+  render();page("pQuiz");
+}
+
+function render(){
+  var i=S.step,q=Q[i];
+  $("qn").textContent="第 "+(i+1)+" 题";
+  $("qt").textContent=q.q;
+  $("pt").textContent=(i+1)+" / "+Q.length;
+  $("pf").style.width=(i/Q.length*100)+"%";
+  var b=$("opts");b.innerHTML="";
+  q.a.forEach(function(o,j){
+    var btn=document.createElement("button");
+    btn.className="opt"+(S.ans[i]===j?" sel":"");
+    btn.textContent=o.t;
+    btn.onclick=function(){
+      S.ans[i]=j;
+      for(var k=0;k<b.children.length;k++)b.children[k].classList.remove("sel");
+      btn.classList.add("sel");
+    };
+    b.appendChild(btn);
+  });
+  $("prevBtn").disabled=(i===0);
+  $("nextBtn").textContent=(i===Q.length-1)?"查看结果":"下一题";
+}
+
+function calc(){
+  var d={A:[],B:[],C:[],D:[],E:[],F:[]};
+  Q.forEach(function(q,i){
+    var a=S.ans[i];if(a===null)return;
+    d[q.a[a].d].push(q.a[a].v);
+  });
+  var sc={};
+  ["A","B","C","D","E","F"].forEach(function(k){
+    var arr=d[k],avg=arr.length?arr.reduce(function(a,b){return a+b},0)/arr.length:2.5;
+    sc[k]=Math.round(avg/4*100);
+  });
+  return {sc:sc,id:pick(sc)};
+}
+function pick(sc){
+  var v=[sc.A,sc.B,sc.C,sc.D,sc.E,sc.F];
+  var mean=v.reduce(function(a,b){return a+b},0)/6;
+  var std=Math.sqrt(v.reduce(function(a,b){return a+Math.pow(b-mean,2)},0)/6);
+  var id="R12";
+  if(std>=22)id="R11";
+  else if(sc.E>=75&&sc.A<=45)id="R9";
+  else if(sc.E>=75&&sc.C>=65)id="R7";
+  else if(sc.B>=78&&sc.A>=65)id="R3";
+  else if(sc.B<=35&&sc.E>=60)id="R1";
+  else if(sc.C<=40&&sc.D<=40)id="R2";
+  else if(sc.C>=72&&sc.A>=68&&sc.B<=55)id="R4";
+  else if(sc.F>=72&&sc.A>=62)id="R8";
+  else if(sc.F>=65&&sc.C<65)id="R5";
+  else if(sc.E>=68&&sc.A<=45)id="R6";
+  else if(sc.A>=62&&sc.D>=58)id="R10";
+  return id;
+}
+
+function radar(sc){
+  var svg=$("rRadar"),cx=150,cy=150,Rr=100;
+  var ds=[{k:"A",l:"情绪调节"},{k:"B",l:"社交能量"},{k:"C",l:"自我控制"},{k:"D",l:"意义感"},{k:"E",l:"认知负荷"},{k:"F",l:"自我接纳"}];
+  var n=ds.length,h="",i;
+  function ang(i){return Math.PI*2/n*i-Math.PI/2}
+  function pt(i,r){return [cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r]}
+  for(var g=1;g<=4;g++){
+    var rr=Rr*g/4,ps=[];
+    for(i=0;i<n;i++)ps.push(pt(i,rr).join(","));
+    h+='<polygon points="'+ps.join(" ")+'" fill="none" stroke="#f0e0bf"/>';
+  }
+  for(i=0;i<n;i++){
+    var xy=pt(i,Rr);
+    h+='<line x1="'+cx+'" y1="'+cy+'" x2="'+xy[0]+'" y2="'+xy[1]+'" stroke="#f0e0bf"/>';
+    var lp=pt(i,Rr+24);
+    h+='<text x="'+lp[0]+'" y="'+lp[1]+'" font-size="11" fill="#b09468" text-anchor="middle">'+ds[i].l+'</text>';
+  }
+  var dp=[];
+  for(i=0;i<n;i++){
+    var v=(sc[ds[i].k]||50)/100,p=pt(i,Rr*v);
+    dp.push(p[0]+","+p[1]);
+  }
+  h+='<polygon points="'+dp.join(" ")+'" fill="rgba(255,171,77,.35)" stroke="#ff9f45" stroke-width="2"/>';
+  for(i=0;i<n;i++){
+    var s=dp[i].split(",");
+    h+='<circle cx="'+s[0]+'" cy="'+s[1]+'" r="3.5" fill="#ff9f45"/>';
+  }
+  svg.innerHTML=h;
+}
+
+function showResult(id,sc){
+  var o=R[id];
+  $("rE").textContent=o.e;$("rT").textContent=o.n;$("rG").textContent=o.g;
+  $("rF").textContent=o.f;$("rTh").textContent=o.t;$("rS").textContent="「"+o.s+"」";
+  if(sc)radar(sc);
+  page("pRes");
+}
+
+function finish(){
+  var r=calc();
+  var base=location.href.split("?")[0];
+  var arr=[r.sc.A,r.sc.B,r.sc.C,r.sc.D,r.sc.E,r.sc.F].join(",");
+  try{history.replaceState(null,"",base+"?r="+r.id+"&s="+arr)}catch(e){}
+  showResult(r.id,r.sc);
+}
+
+$("startBtn").onclick=start;
+$("pwd").addEventListener("keydown",function(e){if(e.key==="Enter")start()});
+$("prevBtn").onclick=function(){if(S.step>0){S.step--;render()}};
+$("nextBtn").onclick=function(){
+  if(S.ans[S.step]===null){toast("请先选择一个选项");return}
+  if(S.step<Q.length-1){S.step++;render()}else{finish()}
+};
+$("saveBtn").onclick=function(){
+  if(typeof html2canvas==="undefined"){toast("图片库未加载，请联网后重试");return}
+  toast("正在生成长图…");
+  html2canvas($("resCard"),{backgroundColor:"#fffdf8",scale:2,useCORS:true}).then(function(c){
+    c.toBlob(function(b){
+      var a=document.createElement("a");
+      a.href=URL.createObjectURL(b);a.download="精神状态成分检测.png";
+      document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);
+      toast("已生成长图，请查看下载");
+    });
+  }).catch(function(){toast("生成失败，请重试")});
+};
+$("copyBtn").onclick=function(){
+  var u=location.href;
+  function done(){toast("链接已复制，去分享吧")}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(u).then(done).catch(function(){fb(u,done)});
+  }else fb(u,done);
+};
+function fb(t,cb){
+  var a=document.createElement("textarea");
+  a.value=t;a.style.position="fixed";a.style.opacity="0";
+  document.body.appendChild(a);a.select();
+  try{document.execCommand("copy");cb()}catch(e){toast("复制失败，请手动复制")}
+  a.remove();
+}
+$("retryBtn").onclick=function(){
+  try{history.replaceState(null,"",location.href.split("?")[0])}catch(e){}
+  S.step=0;resAns();page("pPwd");
+};
+
+(function(){
+  var m=location.search.match(/[?&]r=(R\d+)/);
+  var sm=location.search.match(/[?&]s=([\d,]+)/);
+  if(m&&R[m[1]]){
+    var sc=null;
+    if(sm){
+      var p=sm[1].split(",").map(Number);
+      if(p.length===6&&p.every(function(x){return !isNaN(x)})){
+        sc={A:p[0],B:p[1],C:p[2],D:p[3],E:p[4],F:p[5]};
+      }
+    }
+    if(sc){showResult(m[1],sc);}
+    else{
+      $("rRadar").style.display="none";
+      var sts=document.querySelectorAll(".st");
+      if(sts[0])sts[0].style.display="none";
+      showResult(m[1],null);
+    }
+    $("saveBtn").style.display="none";
+    $("retryBtn").textContent="我也要测";
+  }
+})();
+</script>
+</body></html>
